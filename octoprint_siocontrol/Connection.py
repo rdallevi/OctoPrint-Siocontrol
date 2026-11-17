@@ -35,7 +35,6 @@ IO_TYPE_IDS = {
     "active_lp_in_high": 3,
     "active_lp_in_low": 4,
 }
-LONG_PRESS_IO_TYPE_IDS = (3, 4)
 
 
 class Connection:
@@ -72,7 +71,7 @@ class Connection:
     def getVersionCompatibilty(self):
         self.send("VC")
 
-    def configure_long_press_inputs(self):
+    def configure_io_types(self):
         configurations = self._settings.get(["sio_configurations"]) or []
         if not configurations or not self.is_connected():
             return
@@ -133,9 +132,7 @@ class Connection:
 
         updated_types = current_types[:]
         for io_index, mode in configured_modes.items():
-            current_type = current_types[io_index]
-            if mode.startswith("active_lp_in_") or current_type in LONG_PRESS_IO_TYPE_IDS:
-                updated_types[io_index] = IO_TYPE_IDS[mode]
+            updated_types[io_index] = IO_TYPE_IDS[mode]
 
         if updated_types == current_types:
             self.ioTypeSyncState = None
@@ -260,7 +257,7 @@ class Connection:
                         self.plugin.IOWarnings = " "
                         self._logger.debug("Starting read thread...")
                         self.startCommThreads()
-                        self.configure_long_press_inputs()
+                        self.configure_io_types()
                     else:
                         self.plugin.IOStatus = "SIO device incompatible"
                         self._logger.info("SIO device incompatible")
@@ -461,7 +458,7 @@ class Connection:
                                     )
                                 else:
                                     self._logger.info(
-                                        "SIO IO type configuration verified."
+                                        "SIO I/O type configuration verified."
                                     )
                                 self.ioTypeSyncState = None
                                 self.expectedIOTypeConfiguration = None

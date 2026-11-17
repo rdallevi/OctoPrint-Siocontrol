@@ -1,43 +1,42 @@
 
-<div class="row-fluid" data-bind="foreach: sioButtons">
-    <div class="siocontrol-button-row row-fluid" data-bind="visible: on_side ==1">
-        <div class="siocontrol-button-label span7">
-            <i data-bind="class: icon"></i>
+<div class="siocontrol-sidebar" data-bind="foreach: sioButtons">
+    <div class="siocontrol-button-row" data-bind="visible: on_side == 1">
+        <div class="siocontrol-button-label">
+            <i data-bind="class: icon, attr: { title: name }"></i>
             <span data-bind="text: name"></span>
         </div>
-        <div class="siocontrol-button-controls input-prepend input-append span5" data-bind="visible: $parent.hasControlPermission() && (active_mode =='active_out_low' || active_mode =='active_out_high')" >
-            <button class="btn" data-toggle="dropdown" data-bind="click: $parent.turnSioOn, attr : {'disabled' : current_state != 'off'}">ON</button>
-            <button class="btn" data-toggle="dropdown" data-bind="click: $parent.turnSioOff, attr : {'disabled' : current_state != 'on'}">OFF</button>
-        </div>
-        <div class="siocontrol-button-controls input-prepend input-append span5" data-bind="visible: $parent.hasControlPermission() && (active_mode =='active_in_low' || active_mode =='active_in_high')" >
-            <div class="btn span5 siofntGrn" data-bind="visible: current_state =='on'"><i class="fas fa-toggle-on"></i></div>
-            <div class="btn span5 siofntblk" data-bind="visible: current_state =='off'"><i class="fas fa-toggle-off"></i></div>
-        </div>        
-        <div class="siocontrol-button-controls input-prepend input-append span5" data-bind="visible: $parent.hasControlPermission() && (active_mode =='active_lp_in_low' || active_mode =='active_lp_in_high')" >
-            <div class="btn span5 siofntGrn" data-bind="visible: current_state =='on'"><i class="fas fa-toggle-on"></i></div>
-            <div class="btn span5 siofntblk" data-bind="visible: current_state =='off'"><i class="fas fa-toggle-off"></i></div>
-        </div>   
 
-        <div class="siocontrol-button-controls input-prepend input-append span5" data-bind="visible: !$parent.hasControlPermission()" >
-            <div class="btn span5 siofntGrn" data-bind="visible: current_state =='on'"><i class="fas fa-toggle-on"></i></div>
-            <div class="btn span5 siofntblk" data-bind="visible: current_state =='off'"><i class="fas fa-toggle-off"></i></div>
-        </div>         
+        <div class="siocontrol-button-controls" data-bind="visible: $parent.hasControlPermission() && (active_mode == 'active_out_low' || active_mode == 'active_out_high')">
+            <button type="button" class="btn siocontrol-output-button" data-bind="click: function(){ $parent.turnSioOnByIONumber($index()); }, enable: current_state == 'off'">ON</button>
+            <button type="button" class="btn siocontrol-output-button" data-bind="click: function(){ $parent.turnSioOffByIONumber($index()); }, enable: current_state == 'on'">OFF</button>
+        </div>
+
+        <span class="siocontrol-state-indicator"
+              role="status"
+              data-bind="visible: active_mode == 'active_in_low' || active_mode == 'active_in_high' || active_mode == 'active_lp_in_low' || active_mode == 'active_lp_in_high',
+                         css: { 'siocontrol-state-active': current_state == 'on', 'siocontrol-state-inactive': current_state == 'off' },
+                         text: current_state == 'on' ? 'ACTIVE' : current_state == 'off' ? 'INACTIVE' : 'UNKNOWN'"></span>
+
+        <span class="siocontrol-state-indicator"
+              role="status"
+              data-bind="visible: !$parent.hasControlPermission() && (active_mode == 'active_out_low' || active_mode == 'active_out_high'),
+                         css: { 'siocontrol-state-active': current_state == 'on', 'siocontrol-state-inactive': current_state == 'off' },
+                         text: current_state == 'on' ? 'ON' : current_state == 'off' ? 'OFF' : 'UNKNOWN'"></span>
     </div>
 </div>
-<div class="row-fluid">
-    <div class="span2" data-bind="visible: IOStatusMessage() == 'Connected'">
-        <button class="btn btn-mini pull-left siofntGrn" data-bind="click: connectIO,visible: hasControlPermission()" title="Connect"><i class="fas fa-assistive-listening-systems"></i></button>
-    </div>
-    <div class="span2" data-bind="visible: IOStatusMessage() != 'Connected'">
-        <button class="btn btn-mini pull-left siofntblk" data-bind="click: connectIO,visible: hasControlPermission()" title="Connect"><i class="fas fa-assistive-listening-systems"></i></button>
-    </div>
-    <div class="span7">
-        <span data-bind="text: IOStatusMessage"></span>
-    </div>
-    <div class="span2">
-        <button class="btn btn-mini pull-right" data-bind="click: function(){ settingsViewModel.show('#settings_plugin_siocontrol'); }, visible: hasControlPermission()"><i class="fa fa-gear"></i></button>
-    </div>
+
+<div class="siocontrol-connection-row">
+    <button type="button" class="btn siocontrol-connection-button"
+            data-bind="click: connectIO, visible: hasControlPermission(),
+                       css: { 'siocontrol-connection-connected': IOStatusMessage() == 'Connected', 'siocontrol-connection-disconnected': IOStatusMessage() != 'Connected' }"
+            title="Connect to the I/O controller" aria-label="Connect to the I/O controller">
+        <i class="fas fa-assistive-listening-systems"></i>
+    </button>
+    <span class="siocontrol-connection-status" data-bind="text: IOStatusMessage"></span>
+    <button type="button" class="btn siocontrol-settings-button"
+            data-bind="click: function(){ settingsViewModel.show('#settings_plugin_siocontrol'); }, visible: hasControlPermission()"
+            title="SIO Control settings" aria-label="SIO Control settings">
+        <i class="fa fa-gear"></i>
+    </button>
 </div>
-<div class="row-fluid">
-    <div><span class="span12" data-bind="text: IOSWarnings"></span></div>
-</div>
+<div class="siocontrol-warning" data-bind="visible: IOSWarnings, text: IOSWarnings"></div>

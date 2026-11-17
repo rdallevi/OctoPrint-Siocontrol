@@ -1,15 +1,131 @@
 /* TODO: Have your plugin's CSS files generated to here. */
-.siocontrol-button-row .siocontrol-button-label {
-    padding-top: 4px;
-    padding-bottom: 4px;
+.siocontrol-sidebar {
+    width: 100%;
 }
 
-.siocontrol-button-row .siocontrol-button-label i {
-    width: 20px;
+.siocontrol-button-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 38px;
+    padding: 4px 8px;
+    border-bottom: 1px solid #e5e5e5;
+    box-sizing: border-box;
 }
 
-.siocontrol-button-row .siocontrol-button-controls .btn {
-    width: 50%;
+.siocontrol-button-label {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 8px;
+}
+
+.siocontrol-button-label i {
+    flex: 0 0 20px;
+    text-align: center;
+}
+
+.siocontrol-button-label span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.siocontrol-button-controls {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-left: 8px;
+}
+
+.siocontrol-button-controls .siocontrol-output-button {
+    min-width: 48px;
+    margin: 0;
+    border-radius: 4px;
+}
+
+.siocontrol-state-indicator {
+    flex: 0 0 84px;
+    margin-left: 8px;
+    color: #666;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.siocontrol-state-indicator.siocontrol-state-active {
+    color: #287a3d;
+}
+
+.siocontrol-state-indicator.siocontrol-state-inactive {
+    color: #777;
+}
+
+.siocontrol-connection-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+}
+
+.siocontrol-connection-button,
+.siocontrol-settings-button {
+    flex: 0 0 auto;
+    margin: 0;
+    border-radius: 4px;
+}
+
+.siocontrol-connection-status {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.siocontrol-connection-connected {
+    color: #287a3d;
+}
+
+.siocontrol-connection-disconnected {
+    color: #666;
+}
+
+.siocontrol-warning {
+    padding: 0 8px 8px;
+    color: #9b5b00;
+}
+
+.siocontrol-navbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.siocontrol-nav-button,
+.siocontrol-nav-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 30px;
+    margin: 0;
+    border-radius: 4px;
+}
+
+.siocontrol-nav-indicator {
+    padding: 4px 8px;
+    box-sizing: border-box;
+}
+
+.siocontrol-nav-button.siocontrol_btOn i,
+.siocontrol-nav-indicator.siocontrol_btOn i {
+    color: #16833c;
+}
+
+.siocontrol-nav-button.siocontrol_btOff i,
+.siocontrol-nav-indicator.siocontrol_btOff i {
+    color: #777;
 }
 
 .siocontrol-settings-row {
@@ -33,11 +149,11 @@
 }
 
 .siocontrol_btOn i {
-    color: #0F0
+    color: #16833c
 }
 
 .siocontrol_btOff i {
-    color: grey
+    color: #777
 }
 
 .siocontrol_outliner {

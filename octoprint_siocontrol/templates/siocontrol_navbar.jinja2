@@ -1,3 +1,16 @@
-<div data-bind="foreach: sioButtons">
-    <button class="btn " data-bind="visible: on_nav ==1, click:function(){$parent.toggleSioByIONumber(pin);},css:{'siocontrol_btOn':current_state =='on','siocontrol_btOff': current_state == 'off'}"><i data-bind="class: icon" style="font-size: 1.3em; cursor: pointer; user-select: none"></i>
+<div class="siocontrol-navbar" data-bind="foreach: sioButtons">
+    <button type="button" class="btn siocontrol-nav-button"
+            data-bind="visible: on_nav == 1 && (active_mode == 'active_out_low' || active_mode == 'active_out_high'),
+                       click: function(){ $parent.toggleSioByIONumber(pin); },
+                       css: { 'siocontrol_btOn': current_state == 'on', 'siocontrol_btOff': current_state == 'off' },
+                       attr: { title: name, 'aria-label': name }">
+        <i data-bind="class: icon" aria-hidden="true"></i>
+    </button>
+    <span class="siocontrol-nav-indicator"
+          role="status"
+          data-bind="visible: on_nav == 1 && (active_mode == 'active_in_low' || active_mode == 'active_in_high' || active_mode == 'active_lp_in_low' || active_mode == 'active_lp_in_high'),
+                     css: { 'siocontrol_btOn': current_state == 'on', 'siocontrol_btOff': current_state == 'off' },
+                     attr: { title: name + ': ' + (current_state == 'on' ? 'active' : 'inactive'), 'aria-label': name + ' input state' }">
+        <i data-bind="class: icon" aria-hidden="true"></i>
+    </span>
 </div>

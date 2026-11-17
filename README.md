@@ -63,7 +63,7 @@ As you add SIO configurations they will appear on the side bar for interaction a
 
 
 ### Note:
-Configuration of an IO Point makes it accessible in the sideNav. It is ok if the IO Point is used by the other integrations like PSUControl. Normal input and output types are still configured at the device level. Selecting an LP input mode also configures that pin's firmware type when the plugin connects, and saves it on the controller. Ensure the firmware supports the LP input type IDs. To set other pin types, see the directions for that device. The official example firmware repositories have general instructions on configuring IO types either in device code or in the README.
+Configuration of an IO Point makes it accessible in the sideNav. It is ok if the IO Point is used by other integrations like PSUControl. When the plugin connects, it synchronizes each configured pin's firmware type with its selected Active As mode (input, pull-up input, output, or long-press input) and saves changed types on the controller. Unconfigured pins retain their current firmware types. Ensure the firmware supports the LP input type IDs. The official example firmware repositories have general instructions on configuring IO types either in device code or in the README.
 
 IO Point numbers and configurations must match the IO device firmware setup. The [OctoPrint-Serial IO Board](https://www.tindie.com/products/softwaresedge/octoprint-serial-io-kit/) offered on Tindie has 2 relays, 1 Status LED, 4 designated inputs and 6 other IO points that can be setup as either inputs or outputs. 
 
