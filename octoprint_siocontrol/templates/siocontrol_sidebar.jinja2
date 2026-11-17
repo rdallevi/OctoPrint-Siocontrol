@@ -13,6 +13,10 @@
             <div class="btn span5 siofntGrn" data-bind="visible: current_state =='on'"><i class="fas fa-toggle-on"></i></div>
             <div class="btn span5 siofntblk" data-bind="visible: current_state =='off'"><i class="fas fa-toggle-off"></i></div>
         </div>        
+        <div class="siocontrol-button-controls input-prepend input-append span5" data-bind="visible: $parent.hasControlPermission() && (active_mode =='active_lp_in_low' || active_mode =='active_lp_in_high')" >
+            <div class="btn span5 siofntGrn" data-bind="visible: current_state =='on'"><i class="fas fa-toggle-on"></i></div>
+            <div class="btn span5 siofntblk" data-bind="visible: current_state =='off'"><i class="fas fa-toggle-off"></i></div>
+        </div>   
 
         <div class="siocontrol-button-controls input-prepend input-append span5" data-bind="visible: !$parent.hasControlPermission()" >
             <div class="btn span5 siofntGrn" data-bind="visible: current_state =='on'"><i class="fas fa-toggle-on"></i></div>

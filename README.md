@@ -56,13 +56,14 @@ As you add SIO configurations they will appear on the side bar for interaction a
 - Select if device an Input or an Output and what is its active state.
   - Out_HIGH means that this Pin is an output and its resting state is LOW. When turned on, it will go HIGH (To V+).
   - In_LOW means that this is an input and its resting state is HiGH. When it is turned on it will go LOW(To ground).
+  - LP_In_HIGH and LP_In_LOW are long-press inputs. The plugin configures these firmware modes when it connects; the input must remain active for the firmware's long-press duration before it is reported active.
 - select if IO point should be on or off by default after/on startup.(Only applies to Outputs)
   - Off would mean that no command will be sent to the IO after start up. 
   - On would cause a command to set the Pin to its active level after start up of OctoPrint.
 
 
 ### Note:
-Configuration of a IO Point makes it accessible in the sideNav. It is ok if the IO Point is used by the other integrations like PSUCorol. Inputs and outputs not configured at the device level from within OctoPrint. Misconfiguring a Pin in the interface will not change the pins type in the controller. To set the pins IO type see the directions for that device. The official example firmware repositories all have some general instructions on how to set IO point types either in the device code or as part of the readme. 
+Configuration of an IO Point makes it accessible in the sideNav. It is ok if the IO Point is used by the other integrations like PSUControl. Normal input and output types are still configured at the device level. Selecting an LP input mode also configures that pin's firmware type when the plugin connects, and saves it on the controller. Ensure the firmware supports the LP input type IDs. To set other pin types, see the directions for that device. The official example firmware repositories have general instructions on configuring IO types either in device code or in the README.
 
 IO Point numbers and configurations must match the IO device firmware setup. The [OctoPrint-Serial IO Board](https://www.tindie.com/products/softwaresedge/octoprint-serial-io-kit/) offered on Tindie has 2 relays, 1 Status LED, 4 designated inputs and 6 other IO points that can be setup as either inputs or outputs. 
 

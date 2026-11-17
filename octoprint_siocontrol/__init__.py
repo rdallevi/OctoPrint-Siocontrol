@@ -622,6 +622,12 @@ class SiocontrolPlugin(
                 if self.IOCurrent is not None and pin < len(self.IOCurrent):
                     if pin < 0:
                         status.append("")
+                    elif configuration["active_mode"] == "active_lp_in_low":
+                        pstatus = "off" if self.IOCurrent[pin] == "1" else "on"
+                        status.append(pstatus)
+                    elif configuration["active_mode"] == "active_lp_in_high":
+                        pstatus = "on" if self.IOCurrent[pin] == "1" else "off"
+                        status.append(pstatus)
                     elif configuration["active_mode"] == "active_in_low":
                         pstatus = "off" if self.IOCurrent[pin] == "1" else "on"
                         status.append(pstatus)

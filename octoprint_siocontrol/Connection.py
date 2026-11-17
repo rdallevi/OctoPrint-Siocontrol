@@ -27,6 +27,16 @@ except ImportError:
 regex_serial_devices = re.compile(r"^(?:ttyUSB|ttyACM|tty\.usb|cu\.|cuaU|ttyS|rfcomm).*")
 """Regex used to filter out valid tty devices"""
 
+IO_TYPE_IDS = {
+    "active_in_high": 0,
+    "active_in_low": 2,
+    "active_out_high": 1,
+    "active_out_low": 1,
+    "active_lp_in_high": 3,
+    "active_lp_in_low": 4,
+}
+LONG_PRESS_IO_TYPE_IDS = (3, 4)
+
 
 class Connection:
     def __init__(self, plugin):
@@ -50,6 +60,8 @@ class Connection:
         self.boxExtrusionOffset = 0
         self.IOCount = 0
         self.commandQueue = []
+        self.ioTypeSyncState = None
+        self.expectedIOTypeConfiguration = None
         self.enableCommandQueue = False
         self.deviceIsCompatible = False
 
@@ -59,6 +71,82 @@ class Connection:
 
     def getVersionCompatibilty(self):
         self.send("VC")
+
+    def configure_long_press_inputs(self):
+        configurations = self._settings.get(["sio_configurations"]) or []
+        if not configurations or not self.is_connected():
+            return
+
+        self.ioTypeSyncState = "reading"
+        self.send("IOT")
+
+    def _parse_io_type_report(self, io_type_report):
+        type_tokens = io_type_report[3:].split(",")
+        if type_tokens and type_tokens[-1] == "":
+            type_tokens.pop()
+        try:
+            return [int(type_token) for type_token in type_tokens]
+        except ValueError:
+            self._logger.error("Invalid IO type report from SIO: %s", io_type_report)
+            return None
+
+    def _apply_configured_io_types(self, current_types):
+        if current_types is None:
+            self.ioTypeSyncState = None
+            return
+
+        configurations = self._settings.get(["sio_configurations"]) or []
+        configured_modes = {}
+        for configuration in configurations:
+            mode = configuration.get("active_mode")
+            if mode not in IO_TYPE_IDS:
+                continue
+            try:
+                io_index = int(configuration["pin"])
+            except (KeyError, TypeError, ValueError):
+                self._logger.error(
+                    "Invalid IO pin in SIO configuration: %s", configuration
+                )
+                self.ioTypeSyncState = None
+                return
+
+            if io_index < 0:
+                continue
+            if io_index >= len(current_types):
+                self._logger.error(
+                    "Configured SIO IO%d is out of range; firmware reports %d IO points.",
+                    io_index,
+                    len(current_types),
+                )
+                self.ioTypeSyncState = None
+                return
+
+            previous_mode = configured_modes.get(io_index)
+            if previous_mode is not None and previous_mode != mode:
+                self._logger.error(
+                    "Conflicting active modes configured for SIO IO%d; skipping IO type update.",
+                    io_index,
+                )
+                self.ioTypeSyncState = None
+                return
+            configured_modes[io_index] = mode
+
+        updated_types = current_types[:]
+        for io_index, mode in configured_modes.items():
+            current_type = current_types[io_index]
+            if mode.startswith("active_lp_in_") or current_type in LONG_PRESS_IO_TYPE_IDS:
+                updated_types[io_index] = IO_TYPE_IDS[mode]
+
+        if updated_types == current_types:
+            self.ioTypeSyncState = None
+            return
+
+        config_string = ",".join("{:02d}".format(type_id) for type_id in updated_types)
+        self.expectedIOTypeConfiguration = updated_types
+        self.ioTypeSyncState = "verifying"
+        self.send("CIO {}".format(config_string))
+        self.send("SIO")
+        self.send("IOT")
 
     def IODeviceInitialize(self):
         self.serialConn.reset_input_buffer()
@@ -162,6 +250,8 @@ class Connection:
 
                 if self.serialConn.is_open:
                     self.commandQueue = []
+                    self.ioTypeSyncState = None
+                    self.expectedIOTypeConfiguration = None
                     self._logger.debug("cleared Command queue")
                     self._connected = True
                     self.IODeviceInitialize()
@@ -170,6 +260,7 @@ class Connection:
                         self.plugin.IOWarnings = " "
                         self._logger.debug("Starting read thread...")
                         self.startCommThreads()
+                        self.configure_long_press_inputs()
                     else:
                         self.plugin.IOStatus = "SIO device incompatible"
                         self._logger.info("SIO device incompatible")
@@ -356,6 +447,24 @@ class Connection:
 
                         elif line[:2] == "IT":  # IO type List
                             self._logger.debug("IO Type list recieved: {}".format(line))
+                            if self.ioTypeSyncState == "reading":
+                                self._apply_configured_io_types(
+                                    self._parse_io_type_report(line)
+                                )
+                            elif self.ioTypeSyncState == "verifying":
+                                reported_types = self._parse_io_type_report(line)
+                                if reported_types != self.expectedIOTypeConfiguration:
+                                    self._logger.error(
+                                        "SIO IO type verification failed; expected %s, received %s.",
+                                        self.expectedIOTypeConfiguration,
+                                        reported_types,
+                                    )
+                                else:
+                                    self._logger.info(
+                                        "SIO IO type configuration verified."
+                                    )
+                                self.ioTypeSyncState = None
+                                self.expectedIOTypeConfiguration = None
                             errorCount = 0
 
                         elif line[:2] == "DG":  # Debug Message
