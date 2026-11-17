@@ -36,7 +36,7 @@ $(function () {
         SIO_FRSIOPoint = "-1";
         SIO_InvertFRSIOPoint = "";
 
-        SioButtonStatusUpdateInterval = 1000;
+        var SioButtonStatusUpdateInterval = 500;
         btnStates = [];
 
 
@@ -56,7 +56,7 @@ $(function () {
 
                 SioBtnInterval = setInterval(function () {
                     self.updateSioButtons();
-                }, self.SIO_SI);
+                }, SioButtonStatusUpdateInterval);
             }
 
 
@@ -98,12 +98,6 @@ $(function () {
             self.settingsViewModel.settings.plugins.siocontrol.sio_configurations(self.sioConfigurations.slice(0));
             self.settingsViewModel.settings.plugins.siocontrol.IOPort(self.SIO_Port());
             self.settingsViewModel.settings.plugins.siocontrol.IOBaudRate(self.SIO_BaudRate);
-            if (self.SIO_SI != self.settingsViewModel.settings.plugins.siocontrol.IOSI()) {
-                clearInterval(SioBtnInterval); //stop existing polling.
-                SioBtnInterval = setInterval(function () { //start the updated one.
-                    self.updateSioButtons();
-                }, self.SIO_SI);
-            }
             self.settingsViewModel.settings.plugins.siocontrol.IOSI(self.SIO_SI); //alwasy update
             self.settingsViewModel.settings.plugins.siocontrol.EnablePSUIOPoint(self.SIO_EnablePSUIOPoint);
             self.settingsViewModel.settings.plugins.siocontrol.PSUIOPoint(self.SIO_PSUIOPoint);
